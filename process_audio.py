@@ -9,8 +9,7 @@ from scipy.signal import butter, filtfilt
 file_path = 'test_breath.wav'
 audio, sr = librosa.load(file_path, sr=None)
 
-# 2. Apply a Bandpass Filter to remove noise (fan, room hum, etc.)
-# Human breathing sounds are mostly between 100 Hz and 2500 Hz
+# 2. Apply a Bandpass Filter ONLY (100 Hz - 2500 Hz)
 def bandpass_filter(data, lowcut, highcut, fs, order=4):
     nyq = 0.5 * fs
     low = lowcut / nyq
@@ -20,19 +19,10 @@ def bandpass_filter(data, lowcut, highcut, fs, order=4):
 
 filtered_audio = bandpass_filter(audio, lowcut=100.0, highcut=2500.0, fs=sr)
 
-# 3. Normalize the clean audio
+# 3. Normalize the filtered audio (boost volume without clipping)
 normalized_audio = filtered_audio / np.max(np.abs(filtered_audio))
 
-# 4. Save the clean amplified audio
+# 4. Save the processed audio
 output_path = 'clean_breath.wav'
 sf.write(output_path, normalized_audio, sr)
-print("File successfully filtered, amplified and saved as 'clean_breath.wav'")
-
-# 5. Plot the clean waveform
-plt.figure(figsize=(10, 4))
-librosa.display.waveshow(normalized_audio, sr=sr, color='green')
-plt.title('Clean Normalized Breathing Waveform')
-plt.xlabel('Time (seconds)')
-plt.ylabel('Amplitude')
-plt.tight_layout()
-plt.show()
+print("File successfully bandpass-filtered and saved.")
